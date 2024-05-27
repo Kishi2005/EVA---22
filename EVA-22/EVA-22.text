@@ -1,0 +1,173 @@
+#include "MotorDriver.h" 
+
+
+const int debug = 0;
+const int sonarFunziona = 1;
+
+
+//Motore 
+
+MotorDriver motor1;
+MotorDriver motor2;
+
+//click
+const int clickDx = 5;
+const int clickSx = 6;
+const int ground = 7;
+
+//Sensore di gas
+
+int ledPingas = 2;
+int pinGas= 4;
+int sensor = A0;
+int sensorValuegas = 0;
+
+//Sensore di luce
+
+
+int sensorValueluce1;
+int sensorValueluce2;
+int SOGLIA_MI_FERMO = 400;
+int sensorHigh = 0;
+
+int ledPinluce = 3;
+
+//Suono
+
+int buzzer = A2;
+
+//Sonar
+
+int ledPinsonar = 1;
+const int sonar = A4;
+int valoreSonar = 0;
+
+
+ 
+void setup()
+{
+
+
+  
+    //Motore 
+    
+    motor1.begin();
+    motor2.begin();
+
+    //click
+
+    pinMode(clickDx, INPUT);
+    pinMode(clickSx, INPUT);
+    
+    pinMode(ground, OUTPUT);
+
+    digitalWrite(clickDx, LOW);
+    digitalWrite(clickSx, LOW);
+    digitalWrite(ground, LOW);
+
+    //Sensore di gas
+
+    pinMode(pinGas, OUTPUT);
+    pinMode(ledPingas, OUTPUT);
+
+    //Sensore di luce
+
+  pinMode(ledPinluce, OUTPUT);
+  Serial.begin(9600);
+
+  //Suono
+
+  pinMode(buzzer, OUTPUT);
+
+  //Sonar
+
+  pinMode(ledPinsonar, OUTPUT);
+  pinMode(sonar, INPUT);
+}
+ 
+void loop()
+{
+
+
+pinMode(ledPingas, LOW);
+pinMode(ledPinluce, LOW);
+pinMode(ledPinsonar, LOW);
+
+  
+     //Motore 
+    motor1.speed(0, 400);
+    motor1.speed(1, 400);  
+    
+    if(digitalRead(clickDx) == HIGH || digitalRead(clickSx) == HIGH)
+    {
+      motor1.speed(0, 0);
+      motor1.speed(1, 300);
+      delay(3000);
+    }
+
+    //Sensore di gas
+
+    sensorValuegas = analogRead(sensor);
+  Serial.println(sensorValuegas, DEC);
+  if (sensorValuegas > 300) 
+ {
+    digitalWrite(pinGas, HIGH);
+    motor1.speed(0, 0);
+    motor1.speed(1, 0);
+    digitalWrite(ledPingas, HIGH);
+    tone(buzzer, 1000, 3000);
+    delay(3000);
+  }
+  else 
+  {
+    digitalWrite(pinGas, LOW);
+    
+  }
+
+  //Sensore di luce 
+
+    digitalWrite(ledPinluce, LOW);
+    
+    sensorValueluce1 = analogRead(A1);
+    sensorValueluce2 = analogRead(A3);
+    
+    if(sensorValueluce1 < SOGLIA_MI_FERMO || sensorValueluce2 < SOGLIA_MI_FERMO)
+    {
+      motor1.speed(0, 0);
+      motor1.speed(1, 0);
+      digitalWrite(ledPingas, HIGH);
+      tone(buzzer, 1000, 3000);
+      Serial.println("LUCE TROVATA");
+      Serial.println(sensorValueluce1);
+    }
+  else
+    {
+       
+       Serial.println("LOW");
+       Serial.println(sensorValueluce1);
+      
+    }
+
+    //Sonar
+ 
+    if(sonarFunziona == 1)
+    {
+    valoreSonar = 0;
+    valoreSonar = analogRead(sonar);
+    if(valoreSonar == HIGH)
+    {
+      motor1.speed(0, 0);
+      motor1.speed(1, 0);
+      digitalWrite(ledPinsonar, HIGH);
+      tone(buzzer, 1000, 3000);
+      delay(3000);
+    }
+    }
+  
+  
+  delay(4000);
+  
+
+
+  delay(10);
+}
